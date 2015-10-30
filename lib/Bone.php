@@ -110,14 +110,17 @@ class Bone
             self::autoload(self::$_config['autoload']);
 
             //identify ORM
+            if(isSet(self::$_config['ORM'])){
             switch (self::$_config['ORM']) {
                 case 'eloquent':
+                    Load::directory("lib/DB/Eloquent");
                     eloquent::start(self::$_config['DB']);
                     break;
                 
                 default:
                     # code...
                     break;
+            }      
             }
 
     }
@@ -144,8 +147,6 @@ class Bone
     }
     public static function run()
     {
-
-
             $_findAction = false;
 
             //Get all route assigned on HTTP Method of current request. eg. GET, POST

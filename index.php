@@ -1,7 +1,7 @@
 <?php
 
 require_once "lib/Bone.php";
-require_once "vendor/autoload.php";
+// require_once "vendor/autoload.php";
 
 Bone::config(include 'config/config.php');
 Bone::route(include 'config/route.php');
