@@ -5,7 +5,7 @@
 							[
 							 "method"=>"GET", 
 							 "function"=>function($name){
-							 	echo "Hello ".$name."!. enjoy Bone PHP";
+							 	echo "Hello ".$name."!";
 							 }
 							]
 					]

@@ -12,7 +12,6 @@ Load::directory("lib/tools");
 class Bone
 {
     public static $response = [];
-
     private static $_config = [];
     private static $_functions = [];
 
@@ -88,11 +87,6 @@ class Bone
     {
         self::$_functions['DELETE'][$pattern] = $callback;
     }
-    // Finds a suitable router and executes the corresponding function
-
-    function getConfig($key){
-        return self::$_config[$key];
-    }
 
     /**
     *   Send HTTP status header; Return text equivalent of status code
@@ -107,50 +101,38 @@ class Bone
     //initialize here all needed config
     public function initializeConfiguration(){
             //initial Configured autoload
-            self::autoload(self::$_config['autoload']);
+        if(count($GLOBALS['config']['autoload']))
+            self::autoload($GLOBALS['config']['autoload']);
 
-            //identify ORM
-            if(isSet(self::$_config['ORM'])){
-            switch (self::$_config['ORM']) {
-                case 'eloquent':
-                    Load::directory("lib/DB/Eloquent");
-                    eloquent::start(self::$_config['DB']);
-                    break;
-                
-                default:
-                    # code...
-                    break;
-            }      
-            }
 
     }
 
     public function config(array $config){
             
-             self::$_config = $config;
-
+             $GLOBALS['config'] = $config;
             self::initializeConfiguration();
 
                         // Init URI
             if (isset($_GET['_q'])) {
-                self::$_config['_uri'] = $_GET['_q'];
+                $GLOBALS['config']['_uri'] = $pattern = '/' . trim($_GET['_q'], '/').'/';
             } else {
-                self::$_config['_uri'] = '/';
+                $GLOBALS['config']['_uri'] = '/';
             }
             // Init request method
             if (isset($_SERVER['REQUEST_METHOD'])) {
-                self::$_config['_method'] = $_SERVER['REQUEST_METHOD'];
+                $GLOBALS['config']['_method'] = $_SERVER['REQUEST_METHOD'];
             } else {
-                self::$_config['_method'] = 'GET';
+                $GLOBALS['config']['_method'] = 'GET';
             }
-
+             $GLOBALS['config']['body'] = file_get_contents('php://input');
+ 
     }
     public static function run()
     {
             $_findAction = false;
 
             //Get all route assigned on HTTP Method of current request. eg. GET, POST
-            $functions = self::$_functions[self::$_config['_method']];
+            $functions = self::$_functions[$GLOBALS['config']['_method']];
 
             //check if route is assign to  HTTP Method of current request
             if ( !isset($functions)) {
@@ -162,12 +144,12 @@ class Bone
                 //replace {} with (?.+)
                 $pattern = preg_replace('/{([\w]+)}/i', '(?<$1>.+)', $pattern);
                 //Remove spaces;
-                $pattern = '/' . trim($pattern, '/');
+                $pattern = '/' . trim($pattern, '/').'/';
                 // add this to create pattern that will get parameters
                 $pattern = '%^' . $pattern . '$%u';
 
                 // Run function or action
-                if (preg_match($pattern, self::$_config['_uri'], $params)) {
+                if (preg_match($pattern, $GLOBALS['config']['_uri'], $params)) {
 
                     // before Action
                     ob_start();
@@ -260,25 +242,6 @@ function grab($func,$args=NULL) {
         return $func;
     }
 
-public function parsebody(){
-
-        $head=getallheaders();
-        $body=file_get_contents('php://input');
-        if($body=="")  self::error(400,['Invalid Request Body']);
-        switch (true) {
-            case (strpos($head['Content-Type'],'application/json')!==false):
-                $input=json_decode($body);
-                break;
-            case (strpos($head['Content-Type'],'application/x-www-form-urlencoded')!==false):
-                 parse_str($body,$input);
-                break;
-            default:
-                 parse_str($body,$input);
-                break;
-        }
-        return $input;
-    }
-
 
     function error($code,$body) {
         
@@ -301,8 +264,8 @@ public function parsebody(){
                     '<title>'.$code.' '.$header.'</title>'.
                 '</head>'.$eol.
                 '<body>'.$eol.
-                    '<h1>ERROR '.$code." : ".$header.'<h1><h2> Request : '.self::$_config['_method'].' '.
-                        self::$_config['_uri'].'</h2>'.$eol.$display.
+                    '<h1>ERROR '.$code." : ".$header.'<h1><h2> Request : '.$GLOBALS['config']['_method'].' '.
+                        $GLOBALS['config']['_uri'].'</h2>'.$eol.$display.
                 '</body>'.$eol.
                 '</html>';
           }else{
