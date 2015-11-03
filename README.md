@@ -3,7 +3,9 @@ Microframework for flexible developer
 
 a PHP microframework which goal is to provide extensibility and flexibility to developer.
 
+--------------------
 Features:
+--------------------
 * No Install
 * Lightweight : ~100KB size
 * Extensibility:
@@ -14,9 +16,9 @@ Features:
    -Multiple Template Support including Propel 2
    -Handy configurations
    
-   
- easy to start:
-
+--------------------
+Easy to start:
+--------------------
 require_once "lib/Bone.php";
 
 Bone::get('/',function(){
