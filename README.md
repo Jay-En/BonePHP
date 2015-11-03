@@ -22,7 +22,9 @@ Easy to start:
 require_once "lib/Bone.php";
 
 Bone::get('/',function(){
+
 	echo "HELLO WORLD!!";
+
 });
 
 Bone::run();
